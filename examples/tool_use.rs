@@ -4,26 +4,28 @@
 //! $ cargo run --example tool_use --features macros
 //! ```
 
-#![cfg(feature = "macros")]
-
-use clust::messages::ClaudeModel;
-use clust::messages::MaxTokens;
-use clust::messages::Message;
-use clust::messages::MessagesRequestBody;
-use clust::messages::ToolList;
-use clust::Client;
-
-use clust_macros::clust_tool;
+#[cfg(feature = "macros")]
+use clust::{
+    Client,
+    messages::{ClaudeModel, MaxTokens, Message, MessagesRequestBody, ToolList},
+};
 
 /// Get the current weather in a given location
 ///
 /// ## Arguments
 /// - `location` - The city and state, e.g. San Francisco, CA
-#[clust_tool]
+#[cfg(feature = "macros")]
+#[clust_macros::clust_tool]
 fn get_weather(location: String) -> String {
-    "15 degrees".to_string() // Dummy response
+    // Dummy response
+    if location.contains("San Francisco") {
+        "15 degrees".to_string()
+    } else {
+        "10 degrees".to_string()
+    }
 }
 
+#[cfg(feature = "macros")]
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     // 1. Create a new API client with the API key loaded from the environment variable: `ANTHROPIC_API_KEY`
@@ -75,5 +77,12 @@ async fn main() -> anyhow::Result<()> {
 
     println!("Tool result: {}", tool_result);
 
+    Ok(())
+}
+
+#[cfg(not(feature = "macros"))]
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    // Dummy main to avoid an error when running examples without `macros` feature enabled
     Ok(())
 }
